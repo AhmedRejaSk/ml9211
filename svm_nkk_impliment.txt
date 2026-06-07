@@ -1,0 +1,95 @@
+#Knn & SVM implimentation of iris dataset [all 3 three speicies] 
+library(class)
+library(caret)
+library(e1071)
+
+data("iris")
+
+View(iris)
+
+# Build training data for KNN
+train <- rbind(
+  iris[1:25,-5],
+  iris[51:75,-5],
+  iris[101:125,-5]
+)
+
+View(train)
+
+# Build test data for KNN
+test <- rbind(
+  iris[26:50,-5],
+  iris[76:100,-5],
+  iris[126:150,-5]
+)
+
+View(test)
+
+label <- c(
+  rep("setosa",25),
+  rep("versicolor",25),
+  rep("virginica",25)
+)
+
+label <- as.factor(label)
+
+# KNN code
+mod <- knn(train, test, label)
+
+mod
+
+confusionMatrix(
+  data = mod,
+  reference = label
+)
+
+table(mod, label)
+
+# Build training data for SVM
+train <- rbind(
+  iris[1:25,],
+  iris[51:75,],
+  iris[101:125,]
+)
+
+# Build test data for SVM
+test <- rbind(
+  iris[26:50,-5],
+  iris[76:100,-5],
+  iris[126:150,-5]
+)
+
+# Code for SVM
+mod <- svm(Species ~ ., train)
+
+# Run SVM model on test data
+pred <- predict(mod, test)
+
+confusionMatrix(
+  data = pred,
+  reference = label
+)
+
+# SVM with linear kernel
+mod <- svm(
+  Species ~ .,
+  train,
+  kernel = "linear"
+)
+
+# Run linear SVM model on test data
+pred <- predict(mod, test)
+
+confusionMatrix(pred, label)
+
+# SVM with polynomial kernel
+mod <- svm(
+  Species ~ .,
+  train,
+  kernel = "polynomial"
+)
+
+# Run polynomial SVM model on test data
+pred <- predict(mod, test)
+
+confusionMatrix(pred, label)

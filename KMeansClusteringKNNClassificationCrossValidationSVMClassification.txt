@@ -1,0 +1,157 @@
+# Read Dataset
+dat = read.csv("C:\\Users\\ahmed\\OneDrive\\Documents\\Dummy_data.csv")
+
+View(dat)
+
+# Remove First Column
+dat = dat[,-1]
+View(dat)
+# Load Libraries
+library(class)
+library(caret)
+library(e1071)
+
+# -----------------------------------
+# K-Means Clustering
+# -----------------------------------
+
+mod = kmeans(dat,5) #kmeans with 5 clusters
+
+mod$size #Size of clusters
+
+mod$cluster[20000] #Which cluster the 20000-th observation belongs to?
+
+#plot(mod$cluster,col=1:5) #plot of clusters
+
+# -----------------------------------
+# Create New Dataset
+# -----------------------------------
+
+newdat = dat[sample(1:nrow(dat),5000),] 
+#make a new data taking 5000 random observations
+
+newdat = newdat[,-1]
+
+# Labels
+lab = c(
+  rep("A",2500),
+  rep("B",2500)
+) 
+#make a vector with 2500 A and 2500 B
+
+lab = as.factor(lab) 
+# convert it to factor
+
+newdat = cbind(newdat,lab) 
+#merge labels with data
+
+# -----------------------------------
+# Build Training and Testing Data
+# -----------------------------------
+
+samp = sample(1:2500,2000)
+
+trainA = newdat[samp,]
+
+trainB = newdat[samp+2500,] 
+
+#We make a training data, 80% of the size 
+#of the dataset, by taking 80% random 
+#observations from class A and 
+#80% random observations from class B
+
+train = rbind(trainA,trainB)
+
+training_row = c(samp, samp+2500)
+
+test = newdat[-training_row,] 
+#build the test data knn
+
+# -----------------------------------
+# KNN
+# -----------------------------------
+
+knn_test = test[,-9] 
+#remove label
+
+knn_train = train[,-9]
+
+training_label = train[,9]
+
+test_labels = test[,9]
+
+mod = knn(
+  knn_train[],
+  knn_test,
+  training_label
+) 
+#knn code
+
+confusionMatrix(mod,test_labels) 
+#confusion matrix of the prediction
+
+# -----------------------------------
+# KNN with 5-Fold Cross Validation
+# -----------------------------------
+
+result = list()
+
+for(i in 1:5){
+  
+  samp = sample(1:2500,2000)
+  
+  trainA = newdat[samp,]
+  
+  trainB = newdat[samp+2500,] 
+  
+  #We make a training data, 80% of the size 
+  #of the dataset, by taking 80% random 
+  #observations from class A and 
+  #80% random observations from class B
+  
+  train = rbind(trainA,trainB)
+  
+  training_row = c(samp, samp+2500)
+  
+  test = newdat[-training_row,] 
+  #build the test data knn
+  
+  knn_test = test[,-9] 
+  #remove label
+  
+  knn_train = train[,-9]
+  
+  training_label = train[,9]
+  
+  test_labels = test[,9]
+  
+  mod = knn(
+    knn_train[],
+    knn_test,
+    training_label
+  ) 
+  #knn code
+  
+  result[[i]] = confusionMatrix(mod,test_labels)
+  
+}
+
+# Show All Fold Results
+result
+
+# -----------------------------------
+# SVM
+# -----------------------------------
+
+mod = svm(lab~.,train)
+
+svm_test = test[,-9] 
+#code for SVM on training data
+
+pred = predict(mod,svm_test) 
+#prediction on test data
+
+testlab = test$lab 
+#test data labels
+
+confusionMatrix(pred,testlab)
