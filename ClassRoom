@@ -1,0 +1,206 @@
+# =====================================================
+# DATA PREPROCESSING + MISSING VALUE HANDLING
+# + KNN + SVM + DECISION TREE + RANDOM FOREST
+# =====================================================
+
+# Install Packages (Run once if not installed)
+# install.packages("readxl")
+# install.packages("class")
+# install.packages("e1071")
+# install.packages("rpart")
+# install.packages("randomForest")
+
+# Load Libraries
+library(readxl)
+library(class)
+library(e1071)
+library(rpart)
+library(randomForest)
+
+# =====================================================
+# LOAD DATASET
+# =====================================================
+
+dat = read_excel("classification_dataset.xlsx")
+
+# View Dataset
+View(dat)
+
+# =====================================================
+# CHECK MISSING VALUES
+# =====================================================
+
+cat("Missing Values in Each Column:\n")
+print(colSums(is.na(dat)))
+
+# =====================================================
+# HANDLE MISSING VALUES
+# Replace NA with Column Mean
+# =====================================================
+
+for(i in 1:10)
+{
+  dat[,i][is.na(dat[,i])] =
+    mean(dat[,i], na.rm = TRUE)
+}
+
+# Check Again
+cat("\nMissing Values After Treatment:\n")
+print(colSums(is.na(dat)))
+
+# =====================================================
+# CONVERT CLASS VARIABLE TO FACTOR
+# =====================================================
+
+dat$class = as.factor(dat$class)
+
+# Structure of Data
+str(dat)
+
+# =====================================================
+# TRAIN TEST SPLIT
+# 70% Training and 30% Testing
+# =====================================================
+
+set.seed(123)
+
+id = sample(1:nrow(dat),
+            0.7*nrow(dat))
+
+train = dat[id, ]
+test  = dat[-id, ]
+
+# =====================================================
+# SEPARATE FEATURES AND TARGET
+# =====================================================
+
+train_x = train[,1:10]
+test_x  = test[,1:10]
+
+train_y = train$class
+test_y  = test$class
+
+# =====================================================
+# KNN CLASSIFICATION
+# =====================================================
+
+cat("\n============================\n")
+cat("KNN CLASSIFICATION\n")
+cat("============================\n")
+
+pred_knn = knn(train = train_x,
+               test = test_x,
+               cl = train_y,
+               k = 5)
+
+# Confusion Matrix
+cat("\nConfusion Matrix:\n")
+print(table(pred_knn, test_y))
+
+# Accuracy
+acc_knn = mean(pred_knn == test_y)
+
+cat("\nKNN Accuracy = ",
+    round(acc_knn*100,2), "%\n")
+
+# =====================================================
+# SVM CLASSIFICATION
+# =====================================================
+
+cat("\n============================\n")
+cat("SVM CLASSIFICATION\n")
+cat("============================\n")
+
+model_svm = svm(class ~ ., data = train)
+
+pred_svm = predict(model_svm, test)
+
+# Confusion Matrix
+cat("\nConfusion Matrix:\n")
+print(table(pred_svm, test_y))
+
+# Accuracy
+acc_svm = mean(pred_svm == test_y)
+
+cat("\nSVM Accuracy = ",
+    round(acc_svm*100,2), "%\n")
+
+# =====================================================
+# DECISION TREE CLASSIFICATION
+# =====================================================
+
+cat("\n============================\n")
+cat("DECISION TREE CLASSIFICATION\n")
+cat("============================\n")
+
+model_tree = rpart(class ~ ., data = train)
+
+pred_tree = predict(model_tree,
+                    test,
+                    type = "class")
+
+# Confusion Matrix
+cat("\nConfusion Matrix:\n")
+print(table(pred_tree, test_y))
+
+# Accuracy
+acc_tree = mean(pred_tree == test_y)
+
+cat("\nDecision Tree Accuracy = ",
+    round(acc_tree*100,2), "%\n")
+
+# =====================================================
+# RANDOM FOREST CLASSIFICATION
+# =====================================================
+
+cat("\n============================\n")
+cat("RANDOM FOREST CLASSIFICATION\n")
+cat("============================\n")
+
+model_rf = randomForest(class ~ ., data = train)
+
+pred_rf = predict(model_rf, test)
+
+# Confusion Matrix
+cat("\nConfusion Matrix:\n")
+print(table(pred_rf, test_y))
+
+# Accuracy
+acc_rf = mean(pred_rf == test_y)
+
+cat("\nRandom Forest Accuracy = ",
+    round(acc_rf*100,2), "%\n")
+
+# =====================================================
+# FINAL ACCURACY COMPARISON
+# =====================================================
+
+cat("\n============================\n")
+cat("FINAL ACCURACY COMPARISON\n")
+cat("============================\n")
+
+result = data.frame(
+  Algorithm = c("KNN",
+                "SVM",
+                "Decision Tree",
+                "Random Forest"),
+
+  Accuracy = c(acc_knn,
+               acc_svm,
+               acc_tree,
+               acc_rf)
+)
+
+print(result)
+
+# =====================================================
+# BEST MODEL
+# =====================================================
+
+best = result[which.max(result$Accuracy), ]
+
+cat("\nBest Model is : ",
+    best$Algorithm)
+
+cat("\nAccuracy : ",
+    round(best$Accuracy*100,2), "%\n")
