@@ -1,0 +1,101 @@
+# Sign Test in Python
+
+from scipy.stats import binomtest
+
+# Given data
+data = [9.3, 8.8, 10.7, 11.5, 8.2, 9.7, 10.3, 8.6, 11.3,
+        10.7, 11.2, 9.6, 9.3, 9.9, 10.3, 10.0, 10.1, 9.6, 10.4]
+
+# Hypothesized median
+median0 = 9.9
+
+# Count signs
+plus = sum(x > median0 for x in data)
+minus = sum(x < median0 for x in data)
+
+n = plus + minus
+
+print("Number of + signs =", plus)
+print("Number of - signs =", minus)
+
+# Perform Sign Test
+result = binomtest(plus, n, 0.5, alternative='two-sided')
+
+print("\nP-value =", result.pvalue)
+
+alpha = 0.05
+
+if result.pvalue < alpha:
+    print("Reject H0")
+else:
+    print("Fail to Reject H0")
+
+
+# Wilcoxon Signed Rank Test in Python
+
+from scipy.stats import wilcoxon
+
+# Given data
+data = [9.3, 8.8, 10.7, 11.5, 8.2, 9.7, 10.3, 8.6, 11.3,
+        10.7, 11.2, 9.6, 9.3, 9.9, 10.3, 10.0, 10.1, 9.6, 10.4]
+
+# Hypothesized median
+median0 = 9.9
+
+# Differences
+diff = [x - median0 for x in data]
+
+# Wilcoxon Signed Rank Test
+stat, p = wilcoxon(diff)
+
+print("Wilcoxon Statistic =", stat)
+print("P-value =", p)
+
+alpha = 0.05
+
+if p < alpha:
+    print("Reject H0")
+else:
+    print("Fail to Reject H0")
+
+
+# MLE for Mean and Variance in Normal Distribution
+
+import numpy as np
+
+# Heights data
+data = [5.54, 5.46, 4.64, 4.62, 5.16,
+        5.22, 4.89, 4.47, 4.94, 5.51]
+
+# MLE of Mean
+mu_mle = np.mean(data)
+
+# MLE of Variance
+variance_mle = np.mean((data - mu_mle) ** 2)
+
+print("MLE of Mean =", mu_mle)
+print("MLE of Variance =", variance_mle)
+
+
+# MLE of Proportion in Binomial Distribution
+
+import numpy as np
+
+# Marks of students
+marks = [60, 85, 97, 40, 42, 56, 95, 70]
+
+# Passing marks
+pass_mark = 55
+
+# Number of students
+n = len(marks)
+
+# Count passed students
+passed = sum(m >= pass_mark for m in marks)
+
+# MLE of proportion
+p_hat = passed / n
+
+print("Number of Passed Students =", passed)
+print("Total Students =", n)
+print("MLE of Proportion =", p_hat)
