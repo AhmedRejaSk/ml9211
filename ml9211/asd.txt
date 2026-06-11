@@ -1,0 +1,105 @@
+####merge_sort_using_python
+def merge_sort(arr):
+    if len(arr)<=1:
+        return arr
+    mid = len(arr)//2
+    left=arr[:mid]
+    right=arr[mid:]
+
+    merge_sort(left)
+    merge_sort(right)
+
+    merge(left,right,arr)
+    
+def merge(a,b,arr):
+    len_a = len(a)
+    len_b = len(b)
+    i = j = k = 0
+
+    while i < len_a and j < len_b:
+        if a[i]<= b[j]:
+            arr[k]=a[i]
+            i+=1
+        else:
+            arr[k]=b[j]
+            j+=1
+        k+=1
+
+    while i<len_a:
+        arr[k]=a[i]
+        i+=1
+        k+=1
+    while j<len_b:
+        arr[k]=b[j]
+        j+=1
+        k+=1
+
+
+arr=[0,5,67,12,58,7,9,45,10,28]
+merge_sort(arr)
+print(arr)
+
+#######heap_sort_using_python
+def heapify(A, n, i):
+    largest = i          # Root
+    left = 2 * i + 1     # Left child
+    right = 2 * i + 2    # Right child
+
+    # Check if left child is larger
+    if left < n and A[left] > A[largest]:
+        largest = left
+
+    # Check if right child is larger
+    if right < n and A[right] > A[largest]:
+        largest = right
+
+    # If root is not largest, swap and heapify again
+    if largest != i:
+        A[i], A[largest] = A[largest], A[i]
+        heapify(A, n, largest)
+
+def heap_sort(A):
+    n = len(A)
+
+    # Build Max Heap
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(A, n, i)
+
+    # Extract elements one by one
+    for i in range(n - 1, 0, -1):
+        A[0], A[i] = A[i], A[0]   # Move current root to end
+        heapify(A, i, 0)          # Heapify reduced heap
+
+# Example
+A = [12, 11, 13, 5, 6, 7]
+print("Original Array:", A)
+heap_sort(A)
+print("Sorted Array:", A)
+
+#####quick_sort_using_python
+def partition(A, low, high):
+    pivot = A[high]      # Choose last element as pivot
+    i = low - 1
+
+    for j in range(low, high):
+        if A[j] <= pivot:
+            i += 1
+            A[i], A[j] = A[j], A[i]
+
+    A[i + 1], A[high] = A[high], A[i + 1]
+    return i + 1
+
+def quick_sort(A, low, high):
+    if low < high:
+        pi = partition(A, low, high)
+
+        quick_sort(A, low, pi - 1)
+        quick_sort(A, pi + 1, high)
+
+
+# Example
+A = [10, 7, 8, 9, 1, 5]
+
+print("Original Array:", A)
+quick_sort(A, 0, len(A) - 1)
+print("Sorted Array:", A)
